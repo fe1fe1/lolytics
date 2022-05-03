@@ -13,18 +13,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
 const AccountSearch = ({}) => {
-    const [summonerName, setSummonerName] = useState("");
     const [region, setRegion] = useState("");
-    const [id, setId] = useState("");
-    const [lvl, setLvl] = useState();
-    const [tier, setTier] = useState();
-    const [rank, setRank] = useState();
-    const [wins, setWins] = useState();
-    const [losses, setLosses] = useState();
-    const [queueType, setQueueType] = useState();
-    const [userName, setUserName] = useState();
+    const [searchInput, setSearchInput] = useState("");
+
     const [dataLoaded, setDataLoadedState] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    const [userData, setUserData] = useState({});
+    const [soloQueueData, setSoloQueueData] = useState({});
+    const [flexQueueData, setFlexQueueData] = useState({});
 
     useEffect(() => {}, []);
 
@@ -33,18 +30,22 @@ const AccountSearch = ({}) => {
         setDataLoadedState(false);
         setLoading(true);
         axios
-            .get(`http://localhost:5000/summoner/${region}/${summonerName}`)
+            .get(`http://localhost:5000/summoner/${region}/${searchInput}`)
             .then((response) => {
                 console.log(response.data);
-                setId(response.data.id);
-                setLvl(response.data.summonerLevel);
-                setTier(response.data.tier);
-                setRank(response.data.rank);
-                setWins(response.data.wins);
-                setLosses(response.data.losses);
-                setQueueType(response.data.queueType);
-                setUserName(summonerName);
 
+                setUserData((userData) => ({
+                    name: response.data.name,
+                    id: response.data.id,
+                    lvl: response.data.summonerLevel,
+
+                    queueType: response.data.queueType,
+                    rank: response.data.tier,
+                    division: response.data.rank,
+                    wins: response.data.wins,
+                    losses: response.data.losses,
+                }));
+                console.log(userData);
                 setLoading(false);
                 setDataLoadedState(true);
             })
@@ -56,7 +57,7 @@ const AccountSearch = ({}) => {
             <Container className="p-4">
                 <Form className="d-flex w-50 m-auto" onSubmit={submitHandler}>
                     <FormControl
-                        onChange={(e) => setSummonerName(e.target.value)}
+                        onChange={(e) => setSearchInput(e.target.value)}
                         type="search"
                         placeholder="Search"
                         className="me-2"
@@ -87,13 +88,13 @@ const AccountSearch = ({}) => {
                 {dataLoaded ? (
                     <div>
                         <div>
-                            <Table striped bordered hover className="mt-5">
+                            <Table striped bordered hover size="sm">
                                 <thead>
                                     <tr>
                                         <th className="lavel">
                                             Summoner name:
                                         </th>
-                                        <th>{userName}</th>
+                                        <th>{userData.name}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -101,27 +102,27 @@ const AccountSearch = ({}) => {
                                         <td className="lavel">
                                             Summoner level:
                                         </td>
-                                        <td>{lvl}</td>
+                                        <td>{userData.lvl}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Rank:</td>
-                                        <td>{tier}</td>
+                                        <td>{userData.rank}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Division:</td>
-                                        <td>{rank}</td>
+                                        <td>{userData.division}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Wins:</td>
-                                        <td>{wins}</td>
+                                        <td>{userData.wins}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Losses:</td>
-                                        <td>{losses}</td>
+                                        <td>{userData.losses}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Queue type:</td>
-                                        <td>{queueType}</td>
+                                        <td>{userData.queueType}</td>
                                     </tr>
                                 </tbody>
                             </Table>
