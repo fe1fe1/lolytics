@@ -1,27 +1,24 @@
 import React, { useEffect } from "react";
-import { useCallback, useState } from "react";
-import Navbar from "react-bootstrap/Navbar";
-import Nav from "react-bootstrap/Nav";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import FormControl from "react-bootstrap/FormControl";
 import Table from "react-bootstrap/Table";
 import axios from "axios";
-import MainNav from "../components/MainNav";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
-const AccountSearch = ({}) => {
+const AccountSearch = () => {
     const [region, setRegion] = useState("");
     const [searchInput, setSearchInput] = useState("");
 
     const [dataLoaded, setDataLoadedState] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    const [userData, setUserData] = useState({});
-    const [soloQueueData, setSoloQueueData] = useState({});
-    const [flexQueueData, setFlexQueueData] = useState({});
+    const [summonerData, setSummonerData] = useState({});
+    const [soloQueueData, setSoloQueueData] = useState(null | {});
+    const [flexQueueData, setFlexQueueData] = useState(null | {});
 
     useEffect(() => {}, []);
 
@@ -32,20 +29,18 @@ const AccountSearch = ({}) => {
         axios
             .get(`http://localhost:5000/summoner/${region}/${searchInput}`)
             .then((response) => {
-                console.log(response.data);
-
-                setUserData((userData) => ({
+                console.log(response);
+                setSummonerData((summonerData) => ({
                     name: response.data.name,
                     id: response.data.id,
-                    lvl: response.data.summonerLevel,
-
-                    queueType: response.data.queueType,
-                    rank: response.data.tier,
-                    division: response.data.rank,
-                    wins: response.data.wins,
-                    losses: response.data.losses,
+                    lvl: response.data.lvl,
                 }));
-                console.log(userData);
+                if (response.data.soloQueue)
+                    setSoloQueueData({ ...response.data.soloQueue });
+
+                if (response.data.felxQueue)
+                    setFlexQueueData(...response.data.felxQueue);
+
                 setLoading(false);
                 setDataLoadedState(true);
             })
@@ -94,7 +89,7 @@ const AccountSearch = ({}) => {
                                         <th className="lavel">
                                             Summoner name:
                                         </th>
-                                        <th>{userData.name}</th>
+                                        <th>{summonerData.name}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -102,27 +97,27 @@ const AccountSearch = ({}) => {
                                         <td className="lavel">
                                             Summoner level:
                                         </td>
-                                        <td>{userData.lvl}</td>
+                                        <td>{summonerData.lvl}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Rank:</td>
-                                        <td>{userData.rank}</td>
+                                        <td>{soloQueueData.tier}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Division:</td>
-                                        <td>{userData.division}</td>
+                                        <td>{soloQueueData.rank}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Wins:</td>
-                                        <td>{userData.wins}</td>
+                                        <td>{soloQueueData.wins}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Losses:</td>
-                                        <td>{userData.losses}</td>
+                                        <td>{soloQueueData.losses}</td>
                                     </tr>
                                     <tr>
                                         <td className="lavel">Queue type:</td>
-                                        <td>{userData.queueType}</td>
+                                        <td>{soloQueueData.queueType}</td>
                                     </tr>
                                 </tbody>
                             </Table>
