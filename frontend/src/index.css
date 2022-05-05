@@ -6,15 +6,17 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-.lavel {
-    width: 200px;
+
+.summoner-search {
+    max-width: 450px;
 }
+
 table.table {
-    width: 30%;
+    max-width: 200px;
     margin: auto;
 }
 
-p.empty-search {
+.empty-search {
     font-style: italic;
     color: gray;
     user-select: none;
@@ -22,15 +24,4 @@ p.empty-search {
 
 select.form-select {
     width: 100px;
-}
-ul.test {
-    justify-content: center;
-    display: flex;
-    color: white;
-}
-li {
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    align-items: center;
 }

@@ -1,45 +1,63 @@
-import React, { useEffect } from "react";
 import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Container from "react-bootstrap/Container";
 import FormControl from "react-bootstrap/FormControl";
-import Table from "react-bootstrap/Table";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
+import SummonerInfo from "../components/SummonerInfo";
+import RankStats from "../components/RankStats";
 
 const AccountSearch = () => {
     const [region, setRegion] = useState("");
     const [searchInput, setSearchInput] = useState("");
-
     const [dataLoaded, setDataLoadedState] = useState(false);
     const [loading, setLoading] = useState(false);
-
     const [summonerData, setSummonerData] = useState({});
     const [soloQueueData, setSoloQueueData] = useState(null | {});
     const [flexQueueData, setFlexQueueData] = useState(null | {});
-
-    useEffect(() => {}, []);
 
     const submitHandler = (e) => {
         e.preventDefault();
         setDataLoadedState(false);
         setLoading(true);
+
         axios
             .get(`http://localhost:5000/summoner/${region}/${searchInput}`)
             .then((response) => {
-                console.log(response);
-                setSummonerData((summonerData) => ({
+                setSummonerData({
                     name: response.data.name,
                     id: response.data.id,
                     lvl: response.data.lvl,
-                }));
-                if (response.data.soloQueue)
-                    setSoloQueueData({ ...response.data.soloQueue });
+                });
+                if (response.data.hasOwnProperty("soloQueue")) {
+                    console.log("SOLO DATA: ", response.data.soloQueue);
+                    setSoloQueueData({
+                        ...response.data.soloQueue,
+                        queueType: "Ranked Solo/Duo",
+                        ranked: true,
+                    });
+                } else {
+                    setSoloQueueData({
+                        queueType: "Ranked Solo/Duo",
+                        ranked: false,
+                    });
+                }
 
-                if (response.data.felxQueue)
-                    setFlexQueueData(...response.data.felxQueue);
+                if (response.data.hasOwnProperty("flexQueue")) {
+                    console.log("FLEX DATA: ", response.data.flexQueue);
+                    setFlexQueueData({
+                        ...response.data.flexQueue,
+                        queueType: "Ranked Flex",
+                        ranked: true,
+                    });
+                } else {
+                    setFlexQueueData({
+                        queueType: "Ranked Flex",
+                        ranked: false,
+                    });
+                }
 
                 setLoading(false);
                 setDataLoadedState(true);
@@ -50,12 +68,15 @@ const AccountSearch = () => {
     return (
         <div>
             <Container className="p-4">
-                <Form className="d-flex w-50 m-auto" onSubmit={submitHandler}>
+                <Form
+                    className="d-flex w-50 m-auto summoner"
+                    onSubmit={submitHandler}
+                >
                     <FormControl
                         onChange={(e) => setSearchInput(e.target.value)}
                         type="search"
                         placeholder="Search"
-                        className="me-2"
+                        className="summoner-search me-2"
                         aria-label="Search"
                     />
                     <Form.Select
@@ -79,48 +100,13 @@ const AccountSearch = () => {
                     </Button>
                 </Form>
             </Container>
-            <div className="p-3">
+            <div>
                 {dataLoaded ? (
-                    <div>
-                        <div>
-                            <Table striped bordered hover size="sm">
-                                <thead>
-                                    <tr>
-                                        <th className="lavel">
-                                            Summoner name:
-                                        </th>
-                                        <th>{summonerData.name}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td className="lavel">
-                                            Summoner level:
-                                        </td>
-                                        <td>{summonerData.lvl}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="lavel">Rank:</td>
-                                        <td>{soloQueueData.tier}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="lavel">Division:</td>
-                                        <td>{soloQueueData.rank}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="lavel">Wins:</td>
-                                        <td>{soloQueueData.wins}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="lavel">Losses:</td>
-                                        <td>{soloQueueData.losses}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="lavel">Queue type:</td>
-                                        <td>{soloQueueData.queueType}</td>
-                                    </tr>
-                                </tbody>
-                            </Table>
+                    <div className="d-flex flex-column">
+                        <SummonerInfo summonerData={summonerData} />
+                        <div className="d-flex m-auto justify-content-center">
+                            <RankStats queueData={soloQueueData} />
+                            <RankStats queueData={flexQueueData} />
                         </div>
                     </div>
                 ) : loading ? (
